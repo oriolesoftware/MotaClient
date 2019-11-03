@@ -18,7 +18,7 @@ public class JSONFileIO {
      * @param path JSON文件路径（绝对路径）
      * @return 将返回此文件中的字符串（JSON串）
      */
-    public static String ReadFile(String path) {
+    public static String ReadFile(String path) throws FileNotFoundException {
         BufferedReader reader = null;
         String finalStr = "";
         try {
@@ -30,9 +30,14 @@ public class JSONFileIO {
                 finalStr += tempString;
             }
             reader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw e;
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
             if (reader != null) {
                 try {
                     reader.close();

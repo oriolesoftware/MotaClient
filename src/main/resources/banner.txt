@@ -8,7 +8,7 @@
           ___) | |_| \__ \ ||  __/ | | | | |
          |____/ \__, |___/\__\___|_| |_| |_|
                 |___/
- MOTA Printer Control System (Client) V1.0.1 Beta
+ MOTA Printer Control System (Client) V2.1.3 Beta
  WriteBy:Oriole NeoSunJz
 
  USE
