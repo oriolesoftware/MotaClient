@@ -91,7 +91,7 @@ public class PdfSplicing {
         BufferedImage image = ImageIO.read(in);
         image.getWidth();
         image.getHeight();
-        float realAspecRatio = (float)image.getWidth() / (float)image.getHeight();
+        float realAspectRatio = (float)image.getWidth() / (float)image.getHeight();
 
         //页面数总计
         int countPage = pageList.size();
@@ -107,20 +107,19 @@ public class PdfSplicing {
         //获取页的纵横比
         float pageWidth = ((width_A4 - (marginLeft + marginRight)) - (col - 1) * colMargin) / col;
         float pageHeight = ((height_A4 - (marginTop + marginBottom)) - (row - 1) * rowMargin) / row;
-        float pageAspecRatio = pageWidth / pageHeight;
+        float pageAspectRatio = pageWidth / pageHeight;
 
-
-        if (pageAspecRatio < realAspecRatio) {
+        if (pageAspectRatio < realAspectRatio) {
             //在高度上被拉伸了，因此需重新定义高度
-            pageHeight = pageWidth / realAspecRatio;
+            pageHeight = pageWidth / realAspectRatio;
             autoRowMargin = (height_A4 - (marginTop + marginBottom + (row * pageHeight))) / (row + 1);
-        }
+            }
 
-        if (pageAspecRatio > realAspecRatio) {
+        if (pageAspectRatio > realAspectRatio) {
             //在宽度上被拉伸了，因此需重新定义宽度
-            pageWidth = pageWidth * realAspecRatio;
+            pageWidth = pageHeight * realAspectRatio;
             autoColMargin = (width_A4 - (marginLeft + marginRight + (col * pageWidth))) / (col + 1);
-        }
+            }
 
         //根据排列方式选择处理
         switch (pageOrder) {

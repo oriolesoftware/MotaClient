@@ -1,5 +1,6 @@
 package com.oriole.motaclient.utils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
@@ -23,6 +24,8 @@ public class FileToPdf {
     private static final Integer WORD_TO_PDF_OPERAND = 17;
     private static final Integer PPT_TO_PDF_OPERAND = 32;
     private static final Integer EXCEL_TO_PDF_OPERAND = 0;
+    public static final int width_A4 = 595;
+    public static final int height_A4 = 842;
 
     /**
      * 此方法用于将WORD文档转换为PDF文件
@@ -51,7 +54,7 @@ public class FileToPdf {
             Dispatch.put(doc, "RemovePersonalInformation", false);
             Dispatch.call(doc, "ExportAsFixedFormat", pdfFilePath, WORD_TO_PDF_OPERAND); // word保存为pdf格式宏，值为17
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         } finally {
@@ -86,7 +89,7 @@ public class FileToPdf {
              * param 5: Untitled指定文件是否有标题
              * param 6: WithWindow指定文件是否可见
              * */
-            ppt = Dispatch.call(ppts, "Open", srcFilePath, true,true, false).toDispatch();
+            ppt = Dispatch.call(ppts, "Open", srcFilePath, true, true, false).toDispatch();
             Dispatch.call(ppt, "SaveAs", pdfFilePath, PPT_TO_PDF_OPERAND); // pptSaveAsPDF为特定值32
 
         } catch (Exception e) {
@@ -133,17 +136,17 @@ public class FileToPdf {
                     pdfFilePath,
                     new Variant(0)  //0=标准 (生成的PDF图片不会变模糊) ; 1=最小文件
             };
-            Dispatch.invoke(excel, "ExportAsFixedFormat", Dispatch.Method,obj2, new int[1]);
+            Dispatch.invoke(excel, "ExportAsFixedFormat", Dispatch.Method, obj2, new int[1]);
 
-        } catch (Exception es) {
-            es.printStackTrace();
-            throw es;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             if (excel != null) {
                 Dispatch.call(excel, "Close", new Variant(false));
             }
             if (ax != null) {
-                ax.invoke("Quit", new Variant[] {});
+                ax.invoke("Quit", new Variant[]{});
                 ax = null;
             }
             ComThread.Release();
@@ -156,20 +159,31 @@ public class FileToPdf {
      * @param srcFilePath 文档路径（绝对路径）
      * @param pdfFilePath 转换后PDF文件保存路径（绝对路径）
      */
-    public void png2Pdf(String srcFilePath, String pdfFilePath) throws Exception {
-        System.out.println(srcFilePath+" "+pdfFilePath);
+    public void png2Pdf(JSONArray srcFilePath, String pdfFilePath) throws Exception {
         File file = new File(pdfFilePath);
         FileOutputStream out = null;
 
-        Image image = Image.getInstance(srcFilePath);
-        Rectangle rect = new Rectangle(image.getWidth(),image.getHeight());
+        Rectangle rect = new Rectangle(width_A4, height_A4);
         Document document = new Document(rect);
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
         writer.setViewerPreferences(PdfWriter.PageModeUseOutlines);
         document.open();
-        document.newPage();
-        image.setAbsolutePosition(0, 0);
-        document.add(image);
+
+        for (int index = 0; index < srcFilePath.size(); index++) {
+            document.newPage();
+            Image image = Image.getInstance((String)srcFilePath.get(index));
+            if(image.getWidth()>width_A4||image.getHeight()>height_A4) {
+                float imgAspectRatio = image.getWidth() / image.getHeight();
+                if (width_A4/height_A4 < imgAspectRatio) {
+                    image.scaleAbsolute(width_A4, width_A4/imgAspectRatio);
+                }else{
+                    image.scaleAbsolute(height_A4*imgAspectRatio, height_A4);
+                }
+
+            }
+            image.setAbsolutePosition(0, 0);
+            document.add(image);
+        }
         document.close();
     }
 }
